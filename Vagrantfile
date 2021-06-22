@@ -11,8 +11,8 @@ MACHINES = {
                    {ip: '192.168.128.2',  netmask: "255.255.255.248", adapter: 2, virtualbox__extnet: "vpn-net_1"},
                    {ip: '192.168.160.2',  netmask: '255.255.255.248', adapter:3, virtualbox__intnet: "vpn-net_2"},
                    {ip: '192.168.192.2',  netmask: "255.255.255.248", adapter: 4, virtualbox__extnet: "vpn-net_3"},
-                   # { ip: '0.0.0.0', netmask: "255.255.255.240", adapter: 5, virtualbox__extnet: "router-net_5", mac: "08002795bf0e"},
-                   { ip: '0.0.0.0', adapter: 5, virtualbox__extnet: "router-net_5", mac: "08002795bf0e"}
+                   { ip: '192.168.224.4', netmask: "255.255.255.240", adapter: 5, virtualbox__extnet: "router-net_5", mac: "08002795bf0e"},
+                   # { ip: '0.0.0.0', netmask: "255.255.255.240", adapter: 5, virtualbox__extnet: "router-net_5", mac: "08002795bf0e"}
                 ]
   },
   :cln01 => {
@@ -28,7 +28,7 @@ MACHINES = {
         :net => [
                    {ip: '192.168.192.3',  netmask: "255.255.255.248", adapter: 2, virtualbox__extnet: "vpn-net_3"},
                    # { ip: '0.0.0.0', netmask: "255.255.255.240", adapter: 3, virtualbox__intnet: "router-net_4", mac: "080027ca8609"},
-                   { ip: '0.0.0.0', adapter: 3, virtualbox__intnet: "router-net_4", mac: "080027ca8609"},
+                   { ip: '192.168.224.6', netmask: "255.255.255.240", adapter: 3, virtualbox__intnet: "router-net_4", mac: "080027ca8609"},
                    # {adapter: 3, virtualbox__intnet: "router-net_4"}
                 ]
   },
@@ -36,7 +36,7 @@ MACHINES = {
         # Клиент для теста в сети, доступной через тунель на L2 уровне, интерфейс tap,  тип сети "внутренний - intnet". Подключен в сеть c cln02
         :box_name => "centos/8",
         :net => [
-                   {ip: '192.168.224.18',  netmask: "255.255.255.240", adapter: 2, virtualbox__intnet: "router-net_4"},
+                   {ip: '192.168.224.7',  netmask: "255.255.255.240", adapter: 2, virtualbox__intnet: "router-net_4"},
                 ]
   },
 

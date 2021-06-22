@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# ip a d 192.168.224.4/28 dev eth4
+ip a d 192.168.224.6/28 dev eth2
 ip l a name br0 type bridge
 ip l s dev tap0 master br0
 ip l s dev eth2 master br0
-ip  a a 192.168.224.3/28 dev br0
+ip a a 192.168.224.3/28 dev br0
 ip l s dev br0 up
 ip l s dev tap0 up
 # 08:00:27:95:bf:0e - (srv01 - eth4 )
