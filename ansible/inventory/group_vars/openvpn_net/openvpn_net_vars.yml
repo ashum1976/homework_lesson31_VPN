@@ -1,0 +1,35 @@
+# Удалить не нужные пакеты
+yum_remove:
+      - firewalld
+
+# Установить необходимые пакеты
+yum_install_all:
+      - mc
+      - iptables-services
+      - kbd
+      - epel-release
+      - tcpdump
+      - nano
+      - setools-console
+      - setroubleshoot-server
+      - openvpn
+      - iperf3.x86_64
+      - net-tools
+
+netmask_localnet:
+        255.255.255.248
+
+openvpn_srv01_net:
+        ip_localnet_tun_ext: 192.168.128.2
+        ip_localnet_tun_int: 192.168.160.2
+        ip_localnet_tap_int: 192.168.192.2
+        ip_tunelnet_tun_ext: 10.10.1.0
+        ip_tunelnet_tun_int: 10.10.5.0
+        ip_tunelnet_tap_int: 10.10.10.2
+        port_localnet_tun_ext:  1194
+        port_localnet_tun_int:  1195
+        port_localnet_tap_int:  1196
+
+openvpn_srv01_mask: 255.255.255.0
+
+srv01_path_certs: /etc/openvpn/cert

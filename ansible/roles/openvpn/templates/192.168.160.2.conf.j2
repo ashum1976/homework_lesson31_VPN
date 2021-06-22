@@ -1,0 +1,36 @@
+local {{openvpn_srv01_net.ip_localnet_tun_int}}
+port {{openvpn_srv01_net.port_localnet_tun_int}}
+proto udp4
+dev tun
+
+ca {{srv01_path_certs}}/ca.crt
+cert {{srv01_path_certs}}/{{openvpn_srv01_net.ip_localnet_tun_int}}.crt
+key {{srv01_path_certs}}/{{openvpn_srv01_net.ip_localnet_tun_int}}.key
+dh {{srv01_path_certs}}/dh.pem
+tls-auth {{srv01_path_certs}}/ta.key 0
+cipher BF-CBC
+
+server {{openvpn_srv01_net.ip_tunelnet_tun_int}} {{openvpn_srv01_mask}}
+#client-to-client
+keepalive 10 120
+comp-lzo
+
+tun-mtu 1500
+mssfix 1300
+
+
+#cipher AES-256-CBC
+#auth SHA256
+
+#user nobody
+#group nobody
+
+persist-key
+persist-tun
+
+status /var/log/openvpn/openvpn-status.log
+log-append /var/log/openvpn/openvpn.log
+verb 3
+
+# for udp only
+explicit-exit-notify 1

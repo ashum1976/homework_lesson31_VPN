@@ -1,0 +1,28 @@
+---
+
+- name:  'Установка параметров сетевых интерфейсов, настройка туннелей в режимах tap tun'
+  hosts:
+    - openvpn_net
+  become: True
+  gather_facts: True
+  roles:
+    - openvpn
+
+
+
+# - name: 'Управление и настройка iptables на хостах'
+#   hosts:
+#       inetRouter
+#       centralRouter
+#   become: True
+#   gather_facts: True
+#   roles:
+#     - gw_iptables
+
+# - name:  'Установка параметров сетевых интерфейсов'
+#   hosts:
+#     - servers
+#   become: True
+#   gather_facts: False
+#   roles:
+#     - servers

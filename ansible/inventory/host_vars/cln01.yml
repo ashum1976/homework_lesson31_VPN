@@ -1,0 +1,5 @@
+openvpn_cln01_net:
+        ip_tun_int: 192.168.160.3
+# openvpn_srv01_net:
+#         ip_localnet_tun_int: 192.168.160.2
+#         port_localnet_tun_int:  1195

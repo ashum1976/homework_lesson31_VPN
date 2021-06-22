@@ -1,0 +1,143 @@
+---
+# tasks file for roles/ospf
+- name: Настройка параметров sysctl
+  script: "rsysctl.sh"
+  tags: "{{ all_comp }}"
+
+  # Работа с пакетами, установка, удаление, обновление
+  ## Обновить все пакеты
+  # - name: "Upgrade all packages"
+  #   dnf:
+  #     name: '*'
+  #     state: latest
+  #   tags:
+        # - "{{ all_routers }}"
+
+# Установить пакеты, список в переменной "{{ yum_install_all }}"
+# Общие пакеты для всех серверов
+- name: "Установить пакеты "
+  dnf:
+    name: "{{ yum_install_all }}"
+    state: present
+    disable_gpg_check:  yes
+  tags:
+    - "{{ all_comp }}"
+
+#Удалить пакеты
+## Общие пакеты для всех серверов
+- name: "Удалить пакеты "
+  dnf:
+    name: "{{ yum_remove }}"
+    state: absent
+  tags:
+    - "{{ all_comp }}"
+
+- name: Запуск openVPN на нестандартных портах
+  # community.general.seport:
+  seport:
+    ports: 1195,1196
+    proto: udp
+    setype: openvpn_port_t
+    state: present
+  tags:
+    - srv01
+
+- name: Создание каталога для логфайлов сервера и клиентов
+  file:
+    path: /var/log/openvpn/
+    state: directory
+    owner: openvpn
+    group: root
+    mode: 0770
+  tags:
+    - "{{ all_comp }}"
+
+- name: Создание каталога для хранения сертификатов и ключей сервера и клиентов
+  file:
+    path: /etc/openvpn/cert
+    state: directory
+    owner: openvpn
+    group: root
+    mode: 0770
+  tags:
+    - srv01
+
+
+- name: Copy keys and certs for srvers and clients
+  copy:
+    src: cert/
+    dest: /etc/openvpn/cert/
+    owner: openvpn
+    group: root
+    mode: 0600
+  tags:
+    - copy_cert
+    - srv01
+
+
+- name: Copy  conf files для запуска нескольких экземпляров openvpn на разных портах и с разными типами интерфейсов (tun tap)
+  template:
+    src: "{{item.src}}"
+    dest: /etc/openvpn/server/{{item.dst}}
+    mode: 0600
+    owner: openvpn
+  loop:
+    - {src: '192.168.128.2.conf.j2', dst: '192.168.128.2.conf' }
+    - {src: '192.168.160.2.conf.j2', dst: '192.168.160.2.conf' }
+    - {src: '192.168.192.2.conf.j2', dst: '192.168.192.2.conf' }
+  tags:
+    - srv01
+  # notify:
+  #   - restart openvpn
+
+
+- name: Copy cln01(02).conf.j2 files to  cln01.conf и cln02.conf
+  template:
+    src: "{{ ansible_hostname }}.conf.j2"
+    dest: "/etc/openvpn/client/{{ ansible_hostname }}.conf"
+    owner: openvpn
+    group: root
+    mode: 0640
+  tags:
+    - cln01
+    - cln02
+
+#- name: Добавление IP адреса на интерфейс
+
+#Управление сервисами
+## Включить в автозагрузку и запустить необходимые приложения
+- name: Enable and started open-vpn
+  # ignore_errors: yes
+  systemd:
+    name: openvpn-server@{{ item.src }}
+    state: started
+    enabled: yes
+  loop:
+    - {src: '192.168.128.2'}
+    - {src: '192.168.160.2'}
+    - {src: '192.168.192.2'}
+  tags:
+    - srv01
+
+## Включить в автозагрузку и запустить openvpn на клиентах
+- name: Enable and started openvpn on clients
+  systemd:
+    name: openvpn-client@{{ ansible_hostname }}
+    state: started
+    enabled: yes
+  tags:
+    - cln01
+    - cln02
+
+## Переконфигурирование параметров сетевых карт, создание моста, включение в мост локального интерфеса, тунельного интерфейса, установка значений ebtables для работы туннеля на L2 уровне.srv01
+- name: Конфигурация сетевых интерфейсов для работы через туннель. sr01
+  # ignore_errors: yes
+  script: net_conf_bridge_srv01.sh
+  tags:
+    - srv01
+##Переконфигурирование параметров сетевых карт, создание моста, включение в мост локального интерфеса, тунельного интерфейса, установка значений ebtables для работы туннеля на L2 уровне. cln02
+- name: Конфигурация сетевых интерфейсов для работы через туннель. cln02
+  # ignore_errors: yes
+  script: net_conf_bridge_cln02.sh
+  tags:
+    - cln02

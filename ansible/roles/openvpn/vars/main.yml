@@ -1,0 +1,8 @@
+---
+# vars file for openvpn
+all_comp:
+      - srv01
+      - cln01
+      - cln02
+      - cln03
+      - cln04
