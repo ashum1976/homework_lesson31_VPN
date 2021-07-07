@@ -1,11 +1,10 @@
 .vagrant
 hddvm
 cert_old
-cert
-./ansible/roles/openvpn/defaults
+defaults
 ansible.log
 vagrant.log
-./ansible/roles/openvpn/tests
-./ansible/roles/openvpn/meta
-./ansible/templates
+tests
+ansible/roles/openvpn/meta
+ansible/templates
 openvpn_conf.txt
