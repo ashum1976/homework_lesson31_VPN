@@ -8,3 +8,4 @@ tests
 ansible/roles/openvpn/meta
 ansible/templates
 openvpn_conf.txt
+.travis.yml
