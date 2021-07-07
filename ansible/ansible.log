@@ -859,3 +859,98 @@ Should be written as:
   |--@ungrouped:
 2021-06-18 11:03:21,692 p=732304 u=andrey n=ansible | @servers:
   |--srv01
+2021-06-24 11:34:21,672 p=150458 u=andrey n=ansible | @all:
+  |--@openvpn_net:
+  |  |--@clients:
+  |  |  |--cln01
+  |  |  |--cln02
+  |  |  |--cln03
+  |  |  |--cln04
+  |  |--@servers:
+  |  |  |--srv01
+  |--@ungrouped:
+2021-06-24 11:34:34,767 p=150853 u=andrey n=ansible | @all:
+  |--@openvpn_net:
+  |  |--@clients:
+  |  |  |--cln01
+  |  |  |  |--{ansible_host = 127.0.0.1}
+  |  |  |  |--{ansible_ssh_pass = vagrant}
+  |  |  |  |--{ansible_user = vagrant}
+  |  |  |  |--{netmask_localnet = 255.255.255.248}
+  |  |  |  |--{openvpn_cln01_net = {'ip_tun_int': '192.168.160.3'}}
+  |  |  |  |--{openvpn_srv01_mask = 255.255.255.0}
+  |  |  |  |--{openvpn_srv01_net = {'ip_localnet_tun_ext': '192.168.128.2', 'ip_localnet_tun_int': '192.168.160.2', 'ip_localnet_tap_int': '192.168.192.2', 'ip_tunelnet_tun_ext': '10.10.1.0', 'ip_tunelnet_tun_int': '10.10.5.0', 'ip_tunelnet_tap_int': '10.10.10.2', 'port_localnet_tun_ext': 1194, 'port_localnet_tun_int': 1195, 'port_localnet_tap_int': 1196}}
+  |  |  |  |--{srv01_path_certs = /etc/openvpn/cert}
+  |  |  |  |--{yum_install_all = ['mc', 'iptables-services', 'kbd', 'epel-release', 'tcpdump', 'nano', 'setools-console', 'setroubleshoot-server', 'openvpn', 'iperf3.x86_64', 'net-tools']}
+  |  |  |  |--{yum_remove = ['firewalld']}
+  |  |  |--cln02
+  |  |  |  |--{ansible_host = 127.0.0.1}
+  |  |  |  |--{ansible_ssh_pass = vagrant}
+  |  |  |  |--{ansible_user = vagrant}
+  |  |  |  |--{netmask_localnet = 255.255.255.248}
+  |  |  |  |--{openvpn_cln02_net = {'ip_tap_int': '192.168.192.3'}}
+  |  |  |  |--{openvpn_srv01_mask = 255.255.255.0}
+  |  |  |  |--{openvpn_srv01_net = {'ip_localnet_tun_ext': '192.168.128.2', 'ip_localnet_tun_int': '192.168.160.2', 'ip_localnet_tap_int': '192.168.192.2', 'ip_tunelnet_tun_ext': '10.10.1.0', 'ip_tunelnet_tun_int': '10.10.5.0', 'ip_tunelnet_tap_int': '10.10.10.2', 'port_localnet_tun_ext': 1194, 'port_localnet_tun_int': 1195, 'port_localnet_tap_int': 1196}}
+  |  |  |  |--{srv01_path_certs = /etc/openvpn/cert}
+  |  |  |  |--{yum_install_all = ['mc', 'iptables-services', 'kbd', 'epel-release', 'tcpdump', 'nano', 'setools-console', 'setroubleshoot-server', 'openvpn', 'iperf3.x86_64', 'net-tools']}
+  |  |  |  |--{yum_remove = ['firewalld']}
+  |  |  |--cln03
+  |  |  |  |--{ansible_host = 127.0.0.1}
+  |  |  |  |--{ansible_ssh_pass = vagrant}
+  |  |  |  |--{ansible_user = vagrant}
+  |  |  |  |--{netmask_localnet = 255.255.255.248}
+  |  |  |  |--{openvpn_srv01_mask = 255.255.255.0}
+  |  |  |  |--{openvpn_srv01_net = {'ip_localnet_tun_ext': '192.168.128.2', 'ip_localnet_tun_int': '192.168.160.2', 'ip_localnet_tap_int': '192.168.192.2', 'ip_tunelnet_tun_ext': '10.10.1.0', 'ip_tunelnet_tun_int': '10.10.5.0', 'ip_tunelnet_tap_int': '10.10.10.2', 'port_localnet_tun_ext': 1194, 'port_localnet_tun_int': 1195, 'port_localnet_tap_int': 1196}}
+  |  |  |  |--{srv01_path_certs = /etc/openvpn/cert}
+  |  |  |  |--{yum_install_all = ['mc', 'iptables-services', 'kbd', 'epel-release', 'tcpdump', 'nano', 'setools-console', 'setroubleshoot-server', 'openvpn', 'iperf3.x86_64', 'net-tools']}
+  |  |  |  |--{yum_remove = ['firewalld']}
+  |  |  |--cln04
+  |  |  |  |--{ansible_host = 127.0.0.1}
+  |  |  |  |--{ansible_ssh_pass = vagrant}
+  |  |  |  |--{ansible_user = vagrant}
+  |  |  |  |--{netmask_localnet = 255.255.255.248}
+  |  |  |  |--{openvpn_srv01_mask = 255.255.255.0}
+  |  |  |  |--{openvpn_srv01_net = {'ip_localnet_tun_ext': '192.168.128.2', 'ip_localnet_tun_int': '192.168.160.2', 'ip_localnet_tap_int': '192.168.192.2', 'ip_tunelnet_tun_ext': '10.10.1.0', 'ip_tunelnet_tun_int': '10.10.5.0', 'ip_tunelnet_tap_int': '10.10.10.2', 'port_localnet_tun_ext': 1194, 'port_localnet_tun_int': 1195, 'port_localnet_tap_int': 1196}}
+  |  |  |  |--{srv01_path_certs = /etc/openvpn/cert}
+  |  |  |  |--{yum_install_all = ['mc', 'iptables-services', 'kbd', 'epel-release', 'tcpdump', 'nano', 'setools-console', 'setroubleshoot-server', 'openvpn', 'iperf3.x86_64', 'net-tools']}
+  |  |  |  |--{yum_remove = ['firewalld']}
+  |  |--@servers:
+  |  |  |--srv01
+  |  |  |  |--{ansible_host = 127.0.0.1}
+  |  |  |  |--{ansible_ssh_pass = vagrant}
+  |  |  |  |--{ansible_user = vagrant}
+  |  |  |  |--{netmask_localnet = 255.255.255.248}
+  |  |  |  |--{openvpn_srv01_mask = 255.255.255.0}
+  |  |  |  |--{openvpn_srv01_net = {'ip_localnet_tun_ext': '192.168.128.2', 'ip_localnet_tun_int': '192.168.160.2', 'ip_localnet_tap_int': '192.168.192.2', 'ip_tunelnet_tun_ext': '10.10.1.0', 'ip_tunelnet_tun_int': '10.10.5.0', 'ip_tunelnet_tap_int': '10.10.10.2', 'port_localnet_tun_ext': 1194, 'port_localnet_tun_int': 1195, 'port_localnet_tap_int': 1196}}
+  |  |  |  |--{openvpn_tunel_client_net = {'ip_tunel_client_net_start': '10.10.10.3', 'ip_tunel_client_net_stop': '10.10.10.20'}}
+  |  |  |  |--{srv01_path_certs = /etc/openvpn/cert}
+  |  |  |  |--{yum_install_all = ['mc', 'iptables-services', 'kbd', 'epel-release', 'tcpdump', 'nano', 'setools-console', 'setroubleshoot-server', 'openvpn', 'easy-rsa', 'iperf3.x86_64', 'NetworkManager-libnm', 'nm-connection-editor']}
+  |  |  |  |--{yum_remove = ['firewalld']}
+  |  |--{netmask_localnet = 255.255.255.248}
+  |  |--{openvpn_srv01_mask = 255.255.255.0}
+  |  |--{openvpn_srv01_net = {'ip_localnet_tun_ext': '192.168.128.2', 'ip_localnet_tun_int': '192.168.160.2', 'ip_localnet_tap_int': '192.168.192.2', 'ip_tunelnet_tun_ext': '10.10.1.0', 'ip_tunelnet_tun_int': '10.10.5.0', 'ip_tunelnet_tap_int': '10.10.10.2', 'port_localnet_tun_ext': 1194, 'port_localnet_tun_int': 1195, 'port_localnet_tap_int': 1196}}
+  |  |--{srv01_path_certs = /etc/openvpn/cert}
+  |  |--{yum_install_all = ['mc', 'iptables-services', 'kbd', 'epel-release', 'tcpdump', 'nano', 'setools-console', 'setroubleshoot-server', 'openvpn', 'iperf3.x86_64', 'net-tools']}
+  |  |--{yum_remove = ['firewalld']}
+  |--@ungrouped:
+  |--{ansible_host = 127.0.0.1}
+  |--{ansible_ssh_pass = vagrant}
+  |--{ansible_user = vagrant}
+2021-06-28 09:55:11,789 p=2643568 u=andrey n=ansible | playbook: ./ansible/playbooks/openvpn.yml
+2021-06-28 10:01:58,260 p=2646637 u=andrey n=ansible | playbook: ./ansible/playbooks/openvpn.yml
+2021-06-28 10:01:58,260 p=2646637 u=andrey n=ansible |   play #1 (openvpn_net): Установка параметров сетевых интерфейсов, настройка туннелей в режимах tap tun	TAGS: []
+2021-06-28 10:01:58,301 p=2646637 u=andrey n=ansible |     tasks:
+      openvpn : Настройка параметров sysctl	TAGS: [cln01, cln02, cln03, cln04, srv01]
+      openvpn : Установить пакеты 	TAGS: [cln01, cln02, cln03, cln04, srv01]
+      openvpn : Удалить пакеты 	TAGS: [cln01, cln02, cln03, cln04, srv01]
+      openvpn : Запуск openVPN на нестандартных портах	TAGS: [srv01]
+      openvpn : Создание каталога для логфайлов сервера и клиентов	TAGS: [cln01, cln02, cln03, cln04, srv01]
+      openvpn : Создание каталога для хранения сертификатов и ключей сервера и клиентов	TAGS: [srv01]
+      openvpn : Copy keys and certs for servers and clients	TAGS: [copy_cert, srv01]
+      Copy  conf files для запуска нескольких экземпляров openvpn на разных портах и с разными типами интерфейсов (tun tap)	TAGS: [srv01]
+      openvpn : Copy cln01(02).conf.j2 files to  cln01.conf и cln02.conf	TAGS: [cln01, cln02]
+      openvpn : Enable and started open-vpn	TAGS: [srv01]
+      Enable and started openvpn on clients	TAGS: [cln01, cln02]
+      openvpn : Конфигурация сетевых интерфейсов для работы через туннель. srv01	TAGS: [srv01]
+      openvpn : Конфигурация сетевых интерфейсов для работы через туннель. cln02	TAGS: [cln02]
+

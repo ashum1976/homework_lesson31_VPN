@@ -62,7 +62,7 @@ Vagrant.configure("2") do |config|
 
         boxconfig[:net].each do |ipconf|
           box.vm.network "private_network", ipconf
-        end
+
 
         box.vm.provision "shell", inline: <<-SHELL
           mkdir -p ~root/.ssh
@@ -84,11 +84,8 @@ Vagrant.configure("2") do |config|
           # ansible.tags = "facts"
           ansible.inventory_path = "./ansible/inventory/"
           ansible.playbook = "./ansible/playbooks/openvpn.yml"
-          end
-
+        end
       end
-
+    end
   end
-
-
 end

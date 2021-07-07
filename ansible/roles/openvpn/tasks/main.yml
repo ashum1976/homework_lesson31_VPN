@@ -1,17 +1,19 @@
 ---
 # tasks file for roles/ospf
-- name: Настройка параметров sysctl
-  script: "rsysctl.sh"
-  tags: "{{ all_comp }}"
+# - name: Настройка параметров sysctl
+#   script: "rsysctl.sh"
+#   tags: "{{ all_comp }}"
 
-  # Работа с пакетами, установка, удаление, обновление
-  ## Обновить все пакеты
-  # - name: "Upgrade all packages"
-  #   dnf:
-  #     name: '*'
-  #     state: latest
-  #   tags:
-        # - "{{ all_routers }}"
+
+  - name: Настройка параметров sysctl
+  sysctl:
+      name: net.ipv4.conf.all.forwarding
+      value: '1'
+      state:  present
+      sysctl_set: yes
+      reload: yes
+  tags:
+    - "{{ all_comp }}"
 
 # Установить пакеты, список в переменной "{{ yum_install_all }}"
 # Общие пакеты для всех серверов
@@ -63,7 +65,7 @@
     - srv01
 
 
-- name: Copy keys and certs for srvers and clients
+- name: Copy keys and certs for servers and clients
   copy:
     src: cert/
     dest: /etc/openvpn/cert/
@@ -102,7 +104,6 @@
     - cln01
     - cln02
 
-#- name: Добавление IP адреса на интерфейс
 
 #Управление сервисами
 ## Включить в автозагрузку и запустить необходимые приложения
@@ -130,7 +131,7 @@
     - cln02
 
 ## Переконфигурирование параметров сетевых карт, создание моста, включение в мост локального интерфеса, тунельного интерфейса, установка значений ebtables для работы туннеля на L2 уровне.srv01
-- name: Конфигурация сетевых интерфейсов для работы через туннель. sr01
+- name: Конфигурация сетевых интерфейсов для работы через туннель. srv01
   # ignore_errors: yes
   script: net_conf_bridge_srv01.sh
   tags:
