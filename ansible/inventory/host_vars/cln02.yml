@@ -1,3 +1,2 @@
 openvpn_cln02_net:
         ip_tap_int: 192.168.192.3
-#         port_localnet_tap_int:  1196

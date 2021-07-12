@@ -1,11 +1,6 @@
 ---
-# tasks file for roles/ospf
-# - name: Настройка параметров sysctl
-#   script: "rsysctl.sh"
-#   tags: "{{ all_comp }}"
 
-
-  - name: Настройка параметров sysctl
+- name: Настройка параметров sysctl
   sysctl:
       name: net.ipv4.conf.all.forwarding
       value: '1'
@@ -23,8 +18,17 @@
     state: present
     disable_gpg_check:  yes
   tags:
-    - "{{ all_comp }}"
-
+    - srv01
+    - cln01
+    - cln02
+# yum установка для 7 версии centos
+- name: "Установить пакеты yum "
+  yum:
+    name: "{{ yum_install_all }}"
+    state: present
+    disable_gpg_check:  yes
+  tags:
+    - cln05
 #Удалить пакеты
 ## Общие пакеты для всех серверов
 - name: "Удалить пакеты "
@@ -32,8 +36,10 @@
     name: "{{ yum_remove }}"
     state: absent
   tags:
-    - "{{ all_comp }}"
-
+    - srv01
+    - cln01
+    - cln02
+    
 - name: Запуск openVPN на нестандартных портах
   # community.general.seport:
   seport:
@@ -89,8 +95,7 @@
     - {src: '192.168.192.2.conf.j2', dst: '192.168.192.2.conf' }
   tags:
     - srv01
-  # notify:
-  #   - restart openvpn
+
 
 
 - name: Copy cln01(02).conf.j2 files to  cln01.conf и cln02.conf
@@ -108,7 +113,6 @@
 #Управление сервисами
 ## Включить в автозагрузку и запустить необходимые приложения
 - name: Enable and started open-vpn
-  # ignore_errors: yes
   systemd:
     name: openvpn-server@{{ item.src }}
     state: started
@@ -136,9 +140,8 @@
   script: net_conf_bridge_srv01.sh
   tags:
     - srv01
-##Переконфигурирование параметров сетевых карт, создание моста, включение в мост локального интерфеса, тунельного интерфейса, установка значений ebtables для работы туннеля на L2 уровне. cln02
-- name: Конфигурация сетевых интерфейсов для работы через туннель. cln02
-  # ignore_errors: yes
-  script: net_conf_bridge_cln02.sh
+
+- name: "Конфигурирование клиента для сети с srv01. Тестирование доступа через туннели"
+  script: cln05.sh
   tags:
-    - cln02
+    - cln05

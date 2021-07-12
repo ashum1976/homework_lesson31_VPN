@@ -1,17 +1,5 @@
-# openvpn_srv01_net:
-#         ip_localnet_tun_ext: 192.168.128.2
-#         ip_localnet_tun_int: 192.168.160.2
-#         ip_localnet_tap_int: 192.168.192.2
-#         ip_tunnelnet_tun_ext: 10.10.1.0
-#         ip_tunnelnet_tun_int: 10.10.5.0
-#         ip_tunnelnet_tap_int: 10.10.10.0
-#         port_localnet_tun_ext:  1194
-#         port_localnet_tun_int:  1195
-#         port_localnet_tap_int:  1196
 
 openvpn_srv01_mask: 255.255.255.0
-
-# srv01_path_certs: /etc/openvpn/cert
 
 yum_install_all:
       - mc

@@ -16,5 +16,6 @@ clients:
   hosts:
     cln01:
     cln02:
-    cln03:
-    cln04:
+    # cln03:
+    # cln04:
+    cln05:

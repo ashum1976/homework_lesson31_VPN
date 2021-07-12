@@ -11,7 +11,9 @@ tls-auth {{srv01_path_certs}}/ta.key 0
 cipher BF-CBC
 
 server {{openvpn_srv01_net.ip_tunelnet_tun_int}} {{openvpn_srv01_mask}}
+#route 192.168.100.0 255.255.255.240
 #client-to-client
+push "route 192.168.100.0 255.255.255.240"
 keepalive 10 120
 comp-lzo
 

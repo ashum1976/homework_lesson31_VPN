@@ -10,13 +10,10 @@ dh {{srv01_path_certs}}/dh.pem
 tls-auth {{srv01_path_certs}}/ta.key 0
 cipher BF-CBC
 
-#server {{openvpn_srv01_net.ip_tunelnet_tap_int}} {{openvpn_srv01_mask}}
-#server-bridge 10.10.10.1 255.255.255.0 10.10.10.16 10.10.10.32
-#push "route 192.168.224.0 255.255.255.248 10.10.10.1"
 
-server-bridge {{openvpn_srv01_net.ip_tunelnet_tap_int}} {{openvpn_srv01_mask}} {{openvpn_tunel_client_net.ip_tunel_client_net_start}} {{openvpn_tunel_client_net.ip_tunel_client_net_stop}}
-#server-bridge 192.168.224.2 255.255.255.248 192.168.224.5 192.168.224.6
-#client-to-client
+#server-bridge {{openvpn_srv01_net.ip_tunelnet_tap_int}} {{openvpn_srv01_mask}} {{openvpn_tunel_client_net.ip_tunel_client_net_start}} {{openvpn_tunel_client_net.ip_tunel_client_net_stop}}
+server-bridge 192.168.224.2 255.255.255.240 192.168.224.8 192.168.224.14
+push "route 192.168.100.0 255.255.255.240"
 keepalive 10 120
 comp-lzo
 float
