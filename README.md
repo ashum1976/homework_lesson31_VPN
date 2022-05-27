@@ -109,7 +109,7 @@ cd /usr/share/easy-rsa/3
 ./easyrsa init-pki
 
 - Генерация корневого сертификата:
-./easyrsa build-ca nopass
+./easyrsa  build-ca nopass
 
 - Генерация ключа Диффи-Хеллмана:
 ./easyrsa gen-dh
@@ -119,15 +119,22 @@ cd /usr/share/easy-rsa/3
 openvpn --genkey --secret ta.key
 
 - Генерация пары ключ-сертификат для сервера:
-./easyrsa build-server-full <serverIP> nopass
+./easyrsa --keysize=4096 build-server-full <serverIP> nopass
 
 - Генерация пары ключ-сертификат для клиента
 ./easyrsa build-client-full <client1> nopass
+  - Установка срока действия сертификата и размер ключа
+        ./easyrsa --days=60 --keysize=4096  build-client-full <cert_name> nopass
+  - Изменение пароля к клиентскому ключу
+        ./easyrsa set-rsa-pass <cert_name>  - установить пароль на сертификат, или передать параметр [nopass], чтоб сбросить пароль
+
+- Генерация ключа, списка отозванных сертификатов (прнудительно обновлять раз в месяц, независимо от изменений по ключам)
+  ./easyrsa gen-crl
 
 - Отзыв ключа:
 ./easyrsa revoke client1
 
-vars файл для генерации ключей и сертификатов:
+<./easyrsa/vars> файл для генерации ключей и сертификатов:
 
       export KEY_COUNTRY="BY"
       export KEY_PROVINCE="Minsk"
@@ -189,7 +196,7 @@ vars файл для генерации ключей и сертификатов
 
 **Файлы конфигурации сервера openvpn и клиентов openvpn нужно положить в папки /etc/openvpv/server и /etc/openvpv/client соответственно. C помощью ansible скопируем необходимые шаблоны на нужные виртуальные машины**
 
-По результатам тестов, тип туннеля "tap", оказался более эффективным. 
+По результатам тестов, тип туннеля "tap", оказался более эффективным.
 
 
 
@@ -210,6 +217,27 @@ ___
 Т.к. основной задачей сервера является обеспечение доступа удалённых пользователей/серверов к внутренним ресурсам, сервер позволяет определять статическую маршрутизацию от клиентов к серверу и от сервера к клиентам. С точки зрения доступа клиентов к внутренним ресурсам, сервер при помощи протокола DHCP и директив "route" или "push route" позволяет передать клиенту маршруты внутренних сетей. Для оповещения самого сервера об удалённых сетях на стороне клиента используется "client config dir" (ccd), механизм позволяющий описать при помощи директивы "iroute" список внутренних сетей клиента, которые должны попасть в таблицу маршрутизации сервера для транзита в них трафика.
 
 
+**DNS параметры**
+
+Отключаеем DNS клиента:
+
+ push "block-outside-dns"
+
+Передача DNS записей клиенту:
+
+- push "dhcp-option DNS 10.62.3.2"
+- push "dhcp-option DNS 10.62.3.3"
+- push "dhcp-option DNS6 2001:db8::a3:c15c:b56e:619a"
+- push "dhcp-option DNS6 2001:db8::a3:ffec:f61c:2e06"
+- push "dhcp-option DOMAIN example.office"
+- push "dhcp-option DOMAIN example.lan"
+- push "dhcp-option DOMAIN-SEARCH example.com" <--- этот параметр "DOMAIN-SEARCH" появился с версии openvpn 2.5
+- push "dhcp-option DOMAIN-ROUTE example.net"
+- push "dhcp-option DOMAIN-ROUTE example.org"
+- push "dhcp-option DNSSEC yes"
+
+
+[Настройка systemd DNS resolver](https://github.com/jonathanio/update-systemd-resolved)
 
 #### Описание команд и основных опций
 
@@ -228,7 +256,7 @@ ___
 
 - **port < port number >** - указывает на каком порту будет работать OpenVPN (локально и удаленно).
 
-- **proto < proto >** - какой протокол будет использоваться. Возможные значения: udp, tcp, tcp-client, tcp-server.
+- **proto < proto >** - какой протокол будет использоваться. Возможные значения: udp, tcp, tcp-client, tcp-server. Значения с указанием типа протокола (ipv4 или ipv6) - udp4, tcp4, udp6, tcp6
 
       tcp-client - сам пытается установить соединение
       tcp-server - только ждет подключений
@@ -259,7 +287,8 @@ ___
 
 - **shaper < bytes >** - указывает скорость передачи данных в байтах для исходящего трафика (только для клиента)
 
-- **tun-mtu < mtu size >** - устанавливает максимальный размер MTU. По умолчанию tun-mtu равен 1500. Использование:
+- **tun-mtu < mtu size >** - устанавливает максимальный размер MTU. По умолчанию tun-mtu равен 1500. Параметр tun-mtu связан с параметром mssfix, если mssfix используется, то значение tun-mtu должно быть 1500
+   Использование:
 
       tun-mtu 1200
 
@@ -276,16 +305,24 @@ ___
 
 - **ifconfig-pool-persist File_Name [Time_in_seconds] (сервер)** - задаёт файл, в котором на указанное время (по умолчанию 600 сек) кэшируются выданные адреса клиентам, что позволяет при переподключении выдать клиенту тот же адрес.
 
-- **ifconfig-pool-linear (сервер)** - задаёт для dev tun режим распределения адресов клиентам не подсетями /30, а "поштучно", то есть /32.
+  - **DEPRECATED!! ifconfig-pool-linear (сервер)** - задаёт для dev tun режим распределения адресов клиентам не подсетями /30, а "поштучно", то есть /32.
+    -   ИСПОЛЬЗУЕТСЯ ОПЦИЯ **topology p2p**
 
+- **topology <mode>**
+  - **mode:**
+    - **p2p** <---- Веделяем один адрес клиенту, шлюзовый адрес будет - адрес серверного интерфейса
+    - **net30** <---- Адреса создаются в виде подсетей с /30 маской, и в параметре "ifconfig 10.8.0.1 10.8.0.2" назначается первый адрес локальному интерфейсу.
+    - **subnet** <--- Режим для создание подсети, адреса на клиентах и сервере задаются в виде <IP> <netmask>
 - **server network netmask (сервер)** - макрокоманда конфигурации сервера. Задаёт сеть и маску для всей OpenVPN-сети. Первый адрес из этой сети назначается интерфейсу сервера, остальные выделяются клиентам. Для режима L2-моста, команда **server-bridge**.
+
+**Warning** -  **Options error: --server already defines an ifconfig-pool, so you can't also specify --ifconfig-pool explicitly**
 
 Команда, например, server 10.8.0.0 255.255.255.0 раскрывается так:
   - Для режима dev tun:
 
       mode server
       tls-server
-      ifconfig 10.8.0.1 10.8.0.2 (серверу назначается первый адрес из первой подсети /30)
+      ifconfig 10.8.0.1 10.8.0.2 (серверу назначается первый адрес из первой подсети /30 если параметр "topology p2p или net30". Если "topology subnet" адреса на клиентах и сервере задаются в виде <IP> <netmask> )
             >к самим IP-адресам виртуального маршрутизатора (10.8.0.1 - tun interface, 10.8.0.2 - адрес интерфейса виртуального маршрутизатора) непосредственно обратиться никак нельзя, оне НЕ ПИНГУЮТСЯ, и в tracert не отображаются.
 
       ifconfig-pool 10.8.0.4 10.8.0.251 (остальной блок адресов выделяется клиентам)
@@ -311,7 +348,14 @@ ___
 
 - **mode server** - переключает OpenVPN в режим сервера (начиная с 2-й версии)
 
-- **mode p2p** - данная опция идет по умолчанию.
+  - **mode p2p** - данная опция идет по умолчанию.
+
+- **script-security** - Контороль уровня безопастности для запуска команд и скриптов:
+    0 -- Strictly no calling of external programs.
+    1 -- (Default) Only call built-in executables such as ifconfig, ip, route, or netsh.
+    2 -- Allow calling of built-in executables and user-defined scripts.
+    3 -- Allow passwords to be passed to scripts via environmental variables (potentially unsafe).
+
 
 **Опции в режиме сервера**
 
@@ -324,7 +368,7 @@ ___
       route
       route-gateway
       route-delay
-      redirect-gateway
+      redirect-gateway (push "redirect-gateway def1 bypass-dhcp" - переписать шлюз по-умолчанию у пользователя, и заврнеть весь трафик в тунель)
       inactive
       ping, ping-exit, ping-restart
       persist-key, persist-tun
@@ -332,8 +376,8 @@ ___
       dhcp-option
       ip-win32
 
-- **comp-lzo** - параметр сжатия трафика, идущего через виртуальный туннель. Может принимать значения yes, no, adaptive. Последнее используется по умолчанию.
-
+- !!!DEPRECATED **comp-lzo** - параметр сжатия трафика (для старых клиентов), идущего через виртуальный туннель. Может принимать значения yes, no, adaptive. Последнее используется по умолчанию.
+    - **compress lz4-v2** - современный параметр сжатия
       Например:
       comp-lzo yes - принудительно включить сжатие
       comp-lzo no - принудительно отключить сжатие
@@ -387,9 +431,9 @@ ___
 
             Означает следующее: каждые 10 секунд посылать ping на удаленный хост, и, если за 180 секунд не было получено ни одного пакета - то перезапускать туннель.
 
-      - **persist-local-ip < IP >** - оставлять неизменными локальный IP адрес и номер порт, если туннель был перезапущен.
+      - **persist-local-ip < IP >** - оставлять неизменными локальный IP адрес и номер порта, если туннель был перезапущен.
 
-      - **persist-remote-ip < IP >** - оставлять неизменными удаленный IP адрес и номер порт, если туннель был перезапущен.
+      - **persist-remote-ip < IP >** - оставлять неизменными удаленный IP адрес и номер порта, если туннель был перезапущен.
 
             persist-remote-ip 192.168.50.1
 
@@ -410,8 +454,10 @@ ___
 - **remote-random (клиент)** - использовать в случайном порядке одну из нескольких строк remote
 - **resolv-retry infinite (клиент)** - пытаться бесконечно определить адрес сервера (при указании его по имени), чтобы "обойти" проблему с завершением попытки установления соединения при отказе DNS или сбое внешних соединений
 - **redirect-gateway [local] [def1] (клиент)** - переключение шлюза на удалённый т.е. когда удаленный пользователь подключается к нашему серверу, то ему будет задан шлюз по умолчанию на наш серве. Есть 2 доп.параметра - local и def1 - изменяет маршрут не методом удаления старого маршрута 0.0.0.0/0 и назначением нового, а методом назначения двух более узких маршрутов 0.0.0.0/1 и 128.0.0.0/1
-- **dhcp-option DNS 192.168.1.254 (клиент)** - использование удалённого DNS
-- **dhcp-option WINS 192.168.1.254 (клиент)** - использование удалённого WINS
+- **push dhcp-option DNS 192.168.1.254 (клиент)** - использование удалённого DNS
+- **push dhcp-option WINS 192.168.1.254 (клиент)** - использование удалённого WINS
+- **push dhcp-option DOMAIN example.office (клиент)** -
+- **push "dhcp-option DOMAIN-SEARCH bgim.local** - передать домен поиска
 - **auth-nocache** - не кэшировать пароли в памяти
 
 ##### Команды и параметры при работе с сертификатами x509 и параметрами шифрования
@@ -619,11 +665,24 @@ OpenVPN без проблем может работать через http и soc
 
 - **client-disconnect < command >** - выполнить команду, когда клиент отключился.
 
-Команды отладки и поиска неисправностей
+##### Команды отладки и поиска неисправностей
 - **verb < verbosity level >** - устанавливает уровень информативности отладочных сообщений. Может принимать параметр от 0 до 11. По умолчанию verb равен 1.
 При уровне **verb 5** и выше в логе будут встречаться подобные записи: **RwrW. R (read), W (write)** - соответственно чтение и запись. **Большая буква обозначает, что пакет был считан (R) или записан (W) на виртуальном устройстве TUN/TAP, а маленькие - считан (r) и записан (w) в туннеле.**
 
 - **mute < number of messages >** - если значение установлено в 10, то в лог будет записываться только по 10 сообщений из одной категории.
+
+  - **management** - запуск управляющего интерфейса. Может использоваться как на сервера так и на клиенте. Т.к доступ и передача данных на этом интерфейсе открытая, то рекомендуется запускать или на localhos, или как unix socket. А так же на запуск этого интерфейса как tcp-socket будет ругаться SELinux: SELinux запрещает openvpn доступ name_bind к tcp_socket port 7505.
+
+[Описание всех команд management ](https://openvpn.net/community-resources/management-interface/)
+
+      Пример записи в конфиг файле:
+
+            management localhost 7505
+
+      команда доступа к интерфейсу:
+
+            telnet localhost 7505
+
 
 ##### Логирование
 
@@ -636,7 +695,7 @@ OpenVPN без проблем может работать через http и soc
 
 ---
 
-Разное
+##### Разное
 
 - Создание конфиг-файла для клиента:
 
@@ -655,3 +714,104 @@ OpenVPN без проблем может работать через http и soc
           ${KEY_DIR}/ta.key \
           <(echo -e '</tls-auth>') \
           > ${OUTPUT_DIR}/${1}.ovpn
+
+#  LDAP auth
+Существует плагин [openvpn-auth-ldap](https://github.com/threerings/openvpn-auth-ldap), который позволяет аутентифицировать пользователя через LDAP.
+
+- Для активации этой возможности ставим пакет (в Oracle8 нужен подключенный репозиторий "ol8_developer_EPEL"):
+
+      sudo dnf install openvpn-auth-ldap
+
+- На сервере прописываем строчку в конфиге:
+
+        plugin /usr/lib64/openvpn/plugins/openvpn-auth-ldap.so "/etc/openvpn/auth/ldap.conf"
+        по указанному пути (/etc/openvpn/auth/ldap.conf), создаём конфигурационный файл, для доступа к ActiveDirectory по LDAP
+
+
+<details>
+    <LDAP>
+      	# LDAP server URL
+      	URL		ldap://<IP adress ldar>
+
+      	# Bind DN (Пользователь под которым есть доступ к ActiveDirectory с возможностью просмотра атрибутов)
+      	BindDN  cn=test,CN=Users,DC=bgim,DC=local
+
+      	# Bind Password
+      	# Password	SecretPassword
+
+      	Password	<pass for user test>
+
+      	# Network timeout (in seconds)
+      	Timeout		15
+
+      	# Enable Start TLS
+      	#TLSEnable	yes
+
+      	# Follow LDAP Referrals (anonymously)
+      	FollowReferrals yes
+
+      	# TLS CA Certificate File
+      	#TLSCACertFile	/usr/local/etc/ssl/ca.pem
+
+      	# TLS CA Certificate Directory
+      	#TLSCACertDir	/etc/ssl/certs
+
+      	# Client Certificate and key
+      	# If TLS client authentication is required
+      	#TLSCertFile	/usr/local/etc/ssl/client-cert.pem
+      	#TLSKeyFile	/usr/local/etc/ssl/client-key.pem
+
+      	# Cipher Suite
+      	# The defaults are usually fine here
+      	# TLSCipherSuite	ALL:!ADH:@STRENGTH
+    </LDAP>
+
+    <Authorization>
+      	# Base DN (Путь с которого начинать поиск - CN=Users это контейнер, содержащий пользователей, группы  )
+      	BaseDN		"CN=Users,DC=bgim,DC=local"
+
+      	# User Search Filter
+      	SearchFilter    "(&(cn=%u)(objectClass=organizationalPerson)(objectCategory=person)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))"
+
+      	# Require Group Membership
+      	RequireGroup	true
+
+      	# Add non-group members to a PF table (disabled)
+      	#PFTable	ips_vpn_users
+
+      	# Uncomment and set to true to support OpenVPN Challenge/Response
+      	#PasswordIsCR	false
+      	     <Group>
+              		# Default is true. Match full user DN if true, uid only if false.
+              		# RFC2307bis   true
+
+              		# Default is true. Uncomment and set to false if you want to use a Search operation to determine group
+              		# membership instead of Compare. Lower performance, so Compare should generally be used, but Search is
+              		# required in certain LDAP environments.
+              		# UseCompareOperation   true
+
+              		BaseDN		"cn=Users,dc=bgim,dc=local"
+              		SearchFilter    "(|(CN=f_Admins)(CN=f_PowerUser))"
+              		MemberAttribute	member
+              		# Add group members to a PF table (disabled)
+              		#PFTable	ips_vpn_eng
+      	     </Group>
+    </Authorization>
+</details>
+
+    [пример файла ldap.conf](./files_conf/ldap.conf)
+
+- В пользовательском конфиге прописываем строчку:
+
+        auth-user-pass
+
+
+
+##### LDAP Запросы
+Смотрим какие пользователи входят в группы f_Admins и f_PowerUser и их атрибуты, в частности "**member**: CN=Andy,CN=Users,DC=...,DC=...". В файле ldap.conf, при включении проверки принадлежности пользователя группам, есть параметр "MemberAttribute ...." его значение и должно совпадать т.е "MemberAttribute	**member**"
+
+        ldapsearch -h <IP LDAP server> -W -x -D cn=test,CN=Users,DC=bgim,DC=local -b "DC=bgim,DC=local" "(|(cn=f_Admins)(CN=f_PowerUser))"
+
+Программа для просмотра AD:
+
+  [Active Directory Explorer](https://technet.microsoft.com/en-us/sysinternals/adexplorer.aspx)
